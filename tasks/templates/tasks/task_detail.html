@@ -1,3 +1,50 @@
-<h1>{{ object.title }}</h1>
-<p>{{ object.description }}</p>
-<a href="/">Back</a>
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Comments:</h3>
+
+<form method="post" enctype="multipart/form-data" class="mb-3">
+    {% csrf_token %}
+    <div class="mb-2">
+        <label for="{{ comment_form.content.id_for_label }}">Content</label>
+        {{ comment_form.content }}
+    </div>
+    <div class="mb-2">
+        <label for="{{ comment_form.file.id_for_label }}">File</label>
+        {{ comment_form.file }}
+    </div>
+    <button type="submit" class="btn btn-primary">Add Comment</button>
+</form>
+
+<ul class="list-group mt-3">
+    {% for comment in comments %}
+        <li class="list-group-item d-flex flex-column mb-2">
+            <div class="d-flex justify-content-between">
+                <strong>{{ comment.author.username }}</strong>
+                <small class="text-muted">{{ comment.created_at }}</small>
+            </div>
+            <p>{{ comment.content }}</p>
+
+            {% if comment.file %}
+                <p>File: <a href="{{ comment.file.url }}" target="_blank">{{ comment.file.name }}</a></p>
+            {% endif %}
+
+            <div class="mt-2 d-flex align-items-center">
+                <form method="post" action="{% url 'comment-like' comment.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+                        Like ({{ comment.likes.count }})
+                    </button>
+                </form>
+
+                {% if comment.author == user %}
+                    <a href="{% url 'comment-update' comment.pk %}" class="btn btn-sm btn-warning me-2">Edit</a>
+                    <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                {% endif %}
+            </div>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No comments yet</li>
+    {% endfor %}
+</ul>
+{% endblock %}

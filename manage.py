@@ -20,3 +20,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+#To turn it on the browser write in Terminal "python manage.py runserver"
